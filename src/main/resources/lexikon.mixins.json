@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.oiha.lexikon.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ChatScreenMixin",
+    "TextFieldWidgetMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

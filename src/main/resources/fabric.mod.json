@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "lexikon",
+  "version": "${version}",
+  "name": "Lexikon",
+  "description": "This mod acts as an in-game spell checker, highlighting errors and suggesting corrections as you type in Minecraft chat",
+  "authors": [
+    "Oiha"
+  ],
+  "contact": {
+    "website": "oiha.fr",
+    "repo": "https://github.com/Oiha-dev/Lexikon"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/lexikon/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.oiha.lexikon.client.LexikonClient"
+    ],
+    "main": [
+      "com.oiha.lexikon.Lexikon"
+    ]
+  },
+  "mixins": [
+    "lexikon.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
