@@ -7,8 +7,6 @@
     "ChatScreenMixin",
     "TextFieldWidgetMixin"
   ],
-  "client": [
-  ],
   "injectors": {
     "defaultRequire": 1
   }
