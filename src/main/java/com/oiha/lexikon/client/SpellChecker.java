@@ -3,7 +3,6 @@ package com.oiha.lexikon.client;
 import com.oiha.lexikon.Lexikon;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import org.languagetool.rules.RuleMatch;
 
 import com.oiha.lexikon.mixin.TextFieldWidgetMixin;
@@ -18,7 +17,7 @@ public class SpellChecker {
     private long lastTickTime = System.currentTimeMillis();
     public List<int[]> lines = new ArrayList<>();
 
-    public List<Object[]> suggestionsOverlay = new ArrayList<Object[]>();
+    public List<Object[]> suggestionsOverlay = new ArrayList<>();
 
     ArrayList<RuleMatch> spellcheckList = new ArrayList<>();
 
@@ -26,12 +25,12 @@ public class SpellChecker {
         this.executorService = Executors.newCachedThreadPool();
     }
 
-    public void checkText(TextFieldWidget chatField, MatrixStack matrice) {
+    public void checkText(TextFieldWidget chatField) {
         /*
          * This method is called every tick but the first part of the code is limited to run once per second
          * This is to prevent the spell checker from running too frequently and causing fps drops
          * I'm using the LanguageTool library to check the text for potential errors and the suggested corrections
-         * the errors and suggestions are added to a Arraylist and can be used to draw the red underline and display the suggestions
+         * the errors and suggestions are added to an Arraylist and can be used to draw the red underline and display the suggestions
          */
         long currentTickTime = System.currentTimeMillis();
         String text = chatField.getText();
@@ -79,11 +78,6 @@ public class SpellChecker {
                 int guiScale = (int) MinecraftClient.getInstance().getWindow().getScaleFactor();
                 int textHeight = MinecraftClient.getInstance().textRenderer.fontHeight;
 
-                // Debug by printing mouse position
-                System.out.println("Mouse X: " + mouseX);
-                System.out.println("Mouse Y: " + mouseY);
-
-
                 if (mouseX >= x*guiScale && mouseX <= (x + width)*guiScale && mouseY <= y*guiScale && mouseY >= (y - textHeight)*guiScale) {
                     List<String> suggestions = match.getSuggestedReplacements();
                     if (!suggestions.isEmpty()) {
@@ -92,8 +86,10 @@ public class SpellChecker {
                         int boxWidth = width;
                         int boxHeight = textHeight * guiScale;
                         suggestionsOverlay.clear();
-                        suggestionsOverlay.add(new Object[]{suggestions.get(0), boxX, boxY, boxWidth, boxHeight});
 
+                        for (int i = 0; i < Math.min(3, suggestions.size()); i++) {
+                            suggestionsOverlay.add(new Object[]{suggestions.get(i), boxX, boxY, boxWidth, boxHeight, match.getFromPos(), match.getToPos()});
+                        }
                     }
                 }
             }
