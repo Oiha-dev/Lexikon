@@ -1,11 +1,14 @@
 package com.oiha.lexikon.mixin;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.oiha.lexikon.client.SpellChecker;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,8 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 import java.util.ArrayList;
 
-import static net.minecraft.client.gui.DrawableHelper.fill;
-import static net.minecraft.client.gui.DrawableHelper.drawTextWithShadow;
+import static net.minecraft.client.gui.DrawableHelper.*;
 
 @Mixin(ChatScreen.class)
 public class ChatScreenMixin {
@@ -31,32 +33,35 @@ public class ChatScreenMixin {
     private int selectedSuggestionIndex = 0;
     private int currentErrorStart = -1;
     private int currentErrorEnd = -1;
-    private boolean suggestionApplied = false;
+    private String RuleDescription = null;
+    private boolean showRuleDescription = false;
+    private String lastText = "";
+    private boolean needUpdate = false;
+
+    // Add a new field for the image
+    private static final Identifier SPELLCHECK_ICON = new Identifier("lexikon:textures/gui/floppydisk.png");
+    private static final int ICON_SIZE = 13;
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void onTick(CallbackInfo ci) {
-        if (!suggestionApplied) {
-            spellChecker.checkText(this.chatField);
-            List<int[]> lines = spellChecker.lines;
-            long currentTime = System.currentTimeMillis();
-            /*
+        clearSuggestions();
+        spellChecker.checkText(this.chatField);
+        lastText = chatField.getText();
+        List<int[]> lines = spellChecker.lines;
+        long currentTime = System.currentTimeMillis();
+        /*
              * This part run every tick and is used to draw the red underline under the misspelled words
              * It also displays the suggested corrections when the player hovers over the underlined word
              * The lines and timestamps are used to keep track of the red underlines and remove them after some time
-             */
+        */
+        linesList.clear();
+        timestampsList.clear();
 
-            linesList.clear();
-            timestampsList.clear();
-
-            for (int[] line : lines) {
-                linesList.add(line);
-                timestampsList.add(currentTime);
-            }
-
-            updateCurrentSuggestions();
-        } else {
-            suggestionApplied = false;
+        for (int[] line : lines) {
+            linesList.add(line);
+            timestampsList.add(currentTime);
         }
+        updateCurrentSuggestions();
     }
 
     private void updateCurrentSuggestions() {
@@ -93,7 +98,6 @@ public class ChatScreenMixin {
          * This method is called every tick and is used to update the suggestions list
          * It updates the suggestions list based on the current suggestion box
          */
-        currentSuggestions.clear();
 
         for (int i = Math.min(2, spellChecker.suggestionsOverlay.size() - 1); i >= 1; i--) {
             Object[] nextSuggestion = spellChecker.suggestionsOverlay.get(i);
@@ -111,7 +115,7 @@ public class ChatScreenMixin {
         int boxX = (int) suggestion[1];
         int boxY = (int) suggestion[2];
         int boxWidth = (int) suggestion[3];
-        int boxHeight = (MinecraftClient.getInstance().textRenderer.fontHeight + 6) * Math.min(3, spellChecker.suggestionsOverlay.size());
+        int boxHeight = (MinecraftClient.getInstance().textRenderer.fontHeight + 4) * Math.min(3, spellChecker.suggestionsOverlay.size()) + 9 + ICON_SIZE;
 
         return mouseX >= boxX && mouseX <= (boxX + boxWidth) &&
                 mouseY >= (boxY - boxHeight) && mouseY <= boxY;
@@ -134,47 +138,10 @@ public class ChatScreenMixin {
             fill(matrices, line[0], line[1], line[0] + line[2], line[1] + line[3], line[4]);
         }
 
-        if (!suggestionApplied) {
-            renderSuggestions(matrices);
-        }
-    }
+        renderSuggestions(matrices);
 
-    private void renderSuggestions(MatrixStack matrices) {
-        /*
-         * This method is called every frame and is used to render the suggestions
-         */
-        if (currentSuggestionBox == null || currentSuggestions.isEmpty()) return;
-
-        MinecraftClient client = MinecraftClient.getInstance();
-        int boxX = (int) currentSuggestionBox[1];
-        int boxY = (int) currentSuggestionBox[2] - (client.textRenderer.fontHeight + 6) * currentSuggestions.size() - 6;
-        int maxWidth = 0;
-
-        for (String suggestion : currentSuggestions) {
-            maxWidth = Math.max(maxWidth, client.textRenderer.getWidth(suggestion));
-        }
-
-        int boxWidth = Math.max((int) currentSuggestionBox[3], maxWidth + 8);
-        int boxHeight = (client.textRenderer.fontHeight + 6) * currentSuggestions.size();
-
-        int screenWidth = client.getWindow().getScaledWidth();
-        boxX = Math.min(boxX, screenWidth - boxWidth) - 4;
-        boxY = Math.max(boxY, 0) - 4;
-
-        fill(matrices, boxX, boxY, boxX + boxWidth, boxY + boxHeight, 0xE0000000);
-
-        fill(matrices, boxX, boxY, boxX + boxWidth, boxY + 1, 0xFFFFFFFF);
-        fill(matrices, boxX, boxY + boxHeight - 1, boxX + boxWidth, boxY + boxHeight, 0xFFFFFFFF);
-        fill(matrices, boxX, boxY, boxX + 1, boxY + boxHeight, 0xFFFFFFFF);
-        fill(matrices, boxX + boxWidth - 1, boxY, boxX + boxWidth, boxY + boxHeight, 0xFFFFFFFF);
-
-        for (int i = 0; i < currentSuggestions.size(); i++) {
-            int textY = boxY + 3 + i * (client.textRenderer.fontHeight + 6);
-            int textColor = (i == selectedSuggestionIndex) ? 0xFFFF00 : 0xFFFFFF;
-            if (i == selectedSuggestionIndex) {
-                fill(matrices, boxX + 1, textY - 1, boxX + boxWidth - 1, textY + client.textRenderer.fontHeight + 1, 0x80808080);
-            }
-            drawTextWithShadow(matrices, client.textRenderer, Text.of(currentSuggestions.get(i)), boxX + 4, textY, textColor);
+        if (RuleDescription != null && showRuleDescription) {
+            renderRuleDescription(matrices);
         }
     }
 
@@ -183,21 +150,87 @@ public class ChatScreenMixin {
          * This method is called when the player selects a suggestion
          * It replaces the misspelled word with the selected suggestion
          */
-        if (currentErrorStart >= 0 && currentErrorEnd >= 0 && currentErrorEnd <= chatField.getText().length()) {
-            String currentText = chatField.getText();
-            String correctedText = currentText.substring(0, currentErrorStart) + correction + currentText.substring(currentErrorEnd);
-            chatField.setText(correctedText);
-            chatField.setCursor(currentErrorStart + correction.length());
+        if (correction != "No suggestions"){
+            if (currentErrorStart >= 0 && currentErrorEnd >= 0 && currentErrorEnd <= chatField.getText().length()) {
+                String currentText = chatField.getText();
+                String correctedText = currentText.substring(0, currentErrorStart) + correction + currentText.substring(currentErrorEnd);
+                chatField.setText(correctedText);
+                chatField.setCursor(currentErrorStart + correction.length());
 
-            // Clear suggestions and reset error bounds
-            clearSuggestions();
+                // Clear suggestions and reset error bounds
+                clearSuggestions();
 
-            // Set flag to indicate a suggestion was just applied
-            suggestionApplied = true;
-
-            // Force an immediate update of the spell checker
-            spellChecker.checkText(this.chatField);
+                // Force an immediate update of the spell checker
+                spellChecker.checkText(this.chatField);
+            }
         }
+    }
+
+    private void renderSuggestions(MatrixStack matrices) {
+        if (currentSuggestionBox == null || currentSuggestions.isEmpty()) return;
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        int boxX = (int) currentSuggestionBox[1];
+        int boxY = (int) currentSuggestionBox[2] - (client.textRenderer.fontHeight + 4) * currentSuggestions.size();
+        int maxWidth = 0;
+
+        for (String suggestion : currentSuggestions) {
+            maxWidth = Math.max(maxWidth, client.textRenderer.getWidth(suggestion));
+        }
+
+        int boxWidth = Math.max((int) currentSuggestionBox[3], maxWidth + 8);
+        int boxHeight = (client.textRenderer.fontHeight + 4) * currentSuggestions.size();
+
+        int screenWidth = client.getWindow().getScaledWidth();
+        boxX = Math.min(boxX, screenWidth - boxWidth) - 4;
+        boxY = Math.max(boxY, 0) - 10;
+
+        fill(matrices, boxX, boxY, boxX + boxWidth, boxY + boxHeight, 0xE0000000);
+        fill(matrices, boxX, boxY + boxHeight - 1, boxX + boxWidth, boxY + boxHeight, 0xFFFFFFFF);
+        fill(matrices, boxX, boxY, boxX + 1, boxY + boxHeight, 0xFFFFFFFF);
+        fill(matrices, boxX + boxWidth - 1, boxY, boxX + boxWidth, boxY + boxHeight, 0xFFFFFFFF);
+        //fill(matrices, boxX, boxY, boxX + boxWidth, boxY + 1, 0xFFFFFFFF); // Top border
+
+        // Render the spellcheck icon
+        fill(matrices, boxX + 1, boxY, boxX + ICON_SIZE + 1, boxY - ICON_SIZE + 1, 0xE0000000); // Background
+        RenderSystem.setShader(GameRenderer::getPositionShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, SPELLCHECK_ICON);
+        drawTexture(matrices, boxX + 1, boxY - ICON_SIZE + 2, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE); // Icon
+        fill(matrices, boxX, boxY, boxX + 1, boxY - ICON_SIZE + 1, 0xFFFFFFFF); // Horizontal line
+        fill(matrices, boxX, boxY - ICON_SIZE + 1, boxX + ICON_SIZE + 1, boxY - ICON_SIZE + 2, 0xFFFFFFFF); // Upper line
+        fill(matrices, boxX + ICON_SIZE + 1 , boxY, boxX + ICON_SIZE + 2, boxY - ICON_SIZE + 1, 0xFFFFFFFF);// Horizontal line 2
+        fill(matrices, boxX + ICON_SIZE + 1, boxY, boxX + boxWidth, boxY + 1, 0xFFFFFFFF); // Bottom line
+
+        for (int i = 0; i < currentSuggestions.size(); i++) {
+            int textY = boxY + 11 + i * (client.textRenderer.fontHeight + 4);
+            int textColor = (i == selectedSuggestionIndex) ? 0xFFFF00 : 0xFFFFFF;
+            if (i == selectedSuggestionIndex) {
+                fill(matrices, boxX + 1, textY - 10, boxX + boxWidth - 1, textY + client.textRenderer.fontHeight - 8, 0x80808080);
+            }
+            drawTextWithShadow(matrices, client.textRenderer, Text.of(currentSuggestions.get(i)), boxX + 4, textY - 8, textColor);
+        }
+    }
+
+    private void renderRuleDescription(MatrixStack matrices) {
+        if (currentSuggestionBox == null || currentSuggestions.isEmpty()) return;
+        /*
+         * This method is called when the player right clicks on a suggestion
+         * It displays the rule description above the suggestions
+         */
+
+        MinecraftClient client = MinecraftClient.getInstance();
+        int boxX = (int) currentSuggestionBox[1] - 4;
+        int boxY = (int) currentSuggestionBox[2] - (client.textRenderer.fontHeight + 4) * currentSuggestions.size() - ICON_SIZE * 2 - 11;
+        int boxWidth = client.textRenderer.getWidth(RuleDescription) + 7;
+        int boxHeight = (client.textRenderer.fontHeight + 4);
+        fill(matrices, boxX, boxY, boxX + boxWidth + 1, boxY + boxHeight + 1, 0xE0000000); // Background
+        fill(matrices, boxX, boxY, boxX + boxWidth + 1, boxY + 1, 0xFFFFFFFF); // Bottom line
+        fill(matrices, boxX, boxY, boxX + 1, boxY + boxHeight, 0xFFFFFFFF); // Left line
+        fill(matrices, boxX + boxWidth, boxY, boxX + boxWidth + 1, boxY + boxHeight, 0xFFFFFFFF); // Right line
+        fill(matrices, boxX, boxY + boxHeight, boxX + boxWidth + 1, boxY + boxHeight + 1, 0xFFFFFFFF); // Top line
+
+        drawTextWithShadow(matrices, client.textRenderer, Text.of(RuleDescription), boxX + 4, boxY + 3, 0xFFFFFF);
     }
 
     private void clearSuggestions() {
@@ -228,6 +261,50 @@ public class ChatScreenMixin {
                     applyCorrection(selectedSuggestion);
                 }
                 cir.setReturnValue(true);
+            }
+        }
+    }
+    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+    public void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+        if (currentSuggestionBox != null && !currentSuggestions.isEmpty()) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            int boxX = (int) currentSuggestionBox[1];
+            int boxY = (int) currentSuggestionBox[2] - (client.textRenderer.fontHeight + 3) * (currentSuggestions.size() + 1) + 1;
+            int maxWidth = 0;
+
+            for (String suggestion : currentSuggestions) {
+                maxWidth = Math.max(maxWidth, client.textRenderer.getWidth(suggestion));
+            }
+
+            int boxWidth = Math.max((int) currentSuggestionBox[3], maxWidth + 8);
+            int boxHeight = (client.textRenderer.fontHeight + 3) * (currentSuggestions.size());
+
+            int screenWidth = client.getWindow().getScaledWidth();
+            boxX = Math.min(boxX, screenWidth - boxWidth) - 4;
+            boxY = Math.max(boxY, 0);
+
+            // Check if the click is on the icon
+            if (mouseY <= boxY && mouseY >= boxY - ICON_SIZE) {
+                String errorWord = chatField.getText().substring(currentErrorStart, currentErrorEnd);
+                System.out.println(errorWord);
+                cir.setReturnValue(true);
+                return;
+            }
+
+            if (mouseX >= boxX && mouseX <= boxX + boxWidth && mouseY >= boxY && mouseY <= boxY + boxHeight) {
+                // Handle suggestion selection
+                int selectedIndex = (int) ((mouseY - (boxY + 1)) / (client.textRenderer.fontHeight + 4));
+                if (selectedIndex >= 0 && selectedIndex < currentSuggestions.size()) {
+                    if (button == 0) {
+                        // Left click to apply suggestion
+                        applyCorrection(currentSuggestions.get(selectedIndex));
+                        cir.setReturnValue(true);
+                    } else if (button == 1) {
+                        // Right click to show the rule description above the suggestions
+                        RuleDescription = (String) spellChecker.suggestionsOverlay.get(selectedIndex)[7];
+                        showRuleDescription = true;
+                    }
+                }
             }
         }
     }

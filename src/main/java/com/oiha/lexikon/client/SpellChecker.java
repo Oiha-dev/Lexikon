@@ -80,16 +80,19 @@ public class SpellChecker {
 
                 if (mouseX >= x*guiScale && mouseX <= (x + width)*guiScale && mouseY <= y*guiScale && mouseY >= (y - textHeight)*guiScale) {
                     List<String> suggestions = match.getSuggestedReplacements();
-                    if (!suggestions.isEmpty()) {
-                        int boxX = x;
-                        int boxY = y;
-                        int boxWidth = width;
-                        int boxHeight = textHeight * guiScale;
-                        suggestionsOverlay.clear();
 
+                    int boxX = x;
+                    int boxY = y;
+                    int boxWidth = width;
+                    int boxHeight = textHeight * guiScale;
+                    suggestionsOverlay.clear();
+
+                    if (!suggestions.isEmpty()) {
                         for (int i = 0; i < Math.min(3, suggestions.size()); i++) {
-                            suggestionsOverlay.add(new Object[]{suggestions.get(i), boxX, boxY, boxWidth, boxHeight, match.getFromPos(), match.getToPos()});
+                            suggestionsOverlay.add(new Object[]{suggestions.get(i), boxX, boxY, boxWidth, boxHeight, match.getFromPos(), match.getToPos(), match.getRule().getDescription()}); //I know this is bad but I'm too lazy to change this it work so ¯\_(ツ)_/¯
                         }
+                    }else {
+                        suggestionsOverlay.add(new Object[]{"No suggestions", boxX, boxY, boxWidth, boxHeight, match.getFromPos(), match.getToPos(), match.getRule().getDescription()}); //I know this is bad but I'm too lazy to change this it work so ¯\_(ツ)_/¯
                     }
                 }
             }
