@@ -1,7 +1,6 @@
 package com.oiha.lexikon;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.item.Item;
 
 import net.minecraft.util.registry.Registry;
@@ -20,13 +19,9 @@ public class Lexikon implements ModInitializer {
     private static JLanguageTool langTool;
     @Override
     public void onInitialize() {
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            for(Item item : Registry.ITEM){
-                minecraftNames.add(item.getName().getString());
-            }
-
-            System.out.println(minecraftNames.size());
-        });
+        for(Item item : Registry.ITEM){
+            minecraftNames.add(item.getName().getString());}
+        LOGGER.info(minecraftNames.size());
         LOGGER.info("Lexikon mod has been loaded on the server side");
         langTool = new MultiThreadedJLanguageTool(Languages.getLanguageForShortCode("en-GB"));
     }

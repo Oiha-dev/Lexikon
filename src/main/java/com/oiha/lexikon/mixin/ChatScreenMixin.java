@@ -13,6 +13,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -26,21 +27,32 @@ import static net.minecraft.client.gui.DrawableHelper.*;
 @Mixin(ChatScreen.class)
 public class ChatScreenMixin {
     @Shadow
-    private TextFieldWidget chatField;
+    protected TextFieldWidget chatField;
+    @Unique
     private SpellChecker spellChecker = new SpellChecker();
+    @Unique
     private List<int[]> linesList = new ArrayList<>();
+    @Unique
     private List<Long> timestampsList = new ArrayList<>();
+    @Unique
     private Object[] currentSuggestionBox = null;
+    @Unique
     private List<String> currentSuggestions = new ArrayList<>();
+    @Unique
     private int selectedSuggestionIndex = 0;
+    @Unique
     private int currentErrorStart = 0;
+    @Unique
     private int currentErrorEnd = 0;
+    @Unique
     private String RuleDescription = null;
+    @Unique
     private boolean showRuleDescription = false;
+    @Unique
     private String lastRuleWord = "";
-
-    // Add a new field for the image
+    @Unique
     private static final Identifier SPELLCHECK_ICON = new Identifier("lexikon:textures/gui/floppydisk.png");
+    @Unique
     private static final int ICON_SIZE = 13;
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -64,6 +76,7 @@ public class ChatScreenMixin {
         updateCurrentSuggestions();
     }
 
+    @Unique
     private void updateCurrentSuggestions() {
         /*
          * This method is called every tick and is used to update the suggestions list
@@ -93,6 +106,7 @@ public class ChatScreenMixin {
         }
     }
 
+    @Unique
     private void updateSuggestionsList(Object[] suggestionBox) {
         /*
          * This method is called every tick and is used to update the suggestions list
@@ -108,6 +122,7 @@ public class ChatScreenMixin {
         currentSuggestions.add(suggestion.trim());
     }
 
+    @Unique
     private boolean isMouseOverSuggestion(int mouseX, int mouseY, Object[] suggestion) {
         /*
          * This method is used to check if the mouse is hovering over a suggestion box
@@ -145,6 +160,7 @@ public class ChatScreenMixin {
         }
     }
 
+    @Unique
     private void applyCorrection(String correction) {
         /*
          * This method is called when the player selects a suggestion
@@ -166,6 +182,7 @@ public class ChatScreenMixin {
         }
     }
 
+    @Unique
     private void renderSuggestions(MatrixStack matrices) {
         if (currentSuggestionBox == null || currentSuggestions.isEmpty()) return;
 
@@ -212,6 +229,7 @@ public class ChatScreenMixin {
         }
     }
 
+    @Unique
     private void renderRuleDescription(MatrixStack matrices) {
         if (currentSuggestionBox == null || currentSuggestions.isEmpty()) return;
         /*
@@ -233,6 +251,7 @@ public class ChatScreenMixin {
         drawTextWithShadow(matrices, client.textRenderer, Text.of(RuleDescription), boxX + 4, boxY + 3, 0xFFFFFF);
     }
 
+    @Unique
     private void clearSuggestions() {
         currentSuggestions.clear();
         currentErrorStart = 0;
