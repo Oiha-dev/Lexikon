@@ -10,5 +10,6 @@ public class LexikonClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         LOGGER.info("Lexikon mod has been loaded on the client side");
+
     }
 }

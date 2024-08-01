@@ -7,8 +7,10 @@ import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.Item;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,12 +33,11 @@ public class ChatScreenMixin {
     private Object[] currentSuggestionBox = null;
     private List<String> currentSuggestions = new ArrayList<>();
     private int selectedSuggestionIndex = 0;
-    private int currentErrorStart = -1;
-    private int currentErrorEnd = -1;
+    private int currentErrorStart = 0;
+    private int currentErrorEnd = 0;
     private String RuleDescription = null;
     private boolean showRuleDescription = false;
-    private String lastText = "";
-    private boolean needUpdate = false;
+    private String lastRuleWord = "";
 
     // Add a new field for the image
     private static final Identifier SPELLCHECK_ICON = new Identifier("lexikon:textures/gui/floppydisk.png");
@@ -46,7 +47,6 @@ public class ChatScreenMixin {
     private void onTick(CallbackInfo ci) {
         clearSuggestions();
         spellChecker.checkText(this.chatField);
-        lastText = chatField.getText();
         List<int[]> lines = spellChecker.lines;
         long currentTime = System.currentTimeMillis();
         /*
@@ -75,8 +75,8 @@ public class ChatScreenMixin {
 
         currentSuggestionBox = null;
         currentSuggestions.clear();
-        currentErrorStart = -1;
-        currentErrorEnd = -1;
+        currentErrorStart = 0;
+        currentErrorEnd = 0;
 
         for (Object[] suggestionBox : spellChecker.suggestionsOverlay) {
             if (isMouseOverSuggestion(mouseX, mouseY, suggestionBox)) {
@@ -140,7 +140,7 @@ public class ChatScreenMixin {
 
         renderSuggestions(matrices);
 
-        if (RuleDescription != null && showRuleDescription) {
+        if (RuleDescription != null && showRuleDescription && lastRuleWord.equals(chatField.getText().substring(currentErrorStart, currentErrorEnd))) {
             renderRuleDescription(matrices);
         }
     }
@@ -235,8 +235,8 @@ public class ChatScreenMixin {
 
     private void clearSuggestions() {
         currentSuggestions.clear();
-        currentErrorStart = -1;
-        currentErrorEnd = -1;
+        currentErrorStart = 0;
+        currentErrorEnd = 0;
         selectedSuggestionIndex = 0;
         spellChecker.suggestionsOverlay.clear();
         currentSuggestionBox = null;
@@ -287,6 +287,17 @@ public class ChatScreenMixin {
             if (mouseY <= boxY && mouseY >= boxY - ICON_SIZE) {
                 String errorWord = chatField.getText().substring(currentErrorStart, currentErrorEnd);
                 System.out.println(errorWord);
+                List<String> minecraftNames = new ArrayList<>();
+                for(Item item : Registry.ITEM){
+                    minecraftNames.add(item.getName().getString());
+                }
+
+                System.out.println(minecraftNames.size());
+
+
+                for (String name : minecraftNames) {
+                    System.out.println(name);
+                }
                 cir.setReturnValue(true);
                 return;
             }
@@ -303,6 +314,8 @@ public class ChatScreenMixin {
                         // Right click to show the rule description above the suggestions
                         RuleDescription = (String) spellChecker.suggestionsOverlay.get(selectedIndex)[7];
                         showRuleDescription = true;
+                        lastRuleWord = chatField.getText().substring(currentErrorStart, currentErrorEnd);
+                        cir.setReturnValue(true);
                     }
                 }
             }

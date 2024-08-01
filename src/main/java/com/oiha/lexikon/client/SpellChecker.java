@@ -78,7 +78,7 @@ public class SpellChecker {
                 int guiScale = (int) MinecraftClient.getInstance().getWindow().getScaleFactor();
                 int textHeight = MinecraftClient.getInstance().textRenderer.fontHeight;
 
-                if (mouseX >= x*guiScale && mouseX <= (x + width)*guiScale && mouseY <= y*guiScale && mouseY >= (y - textHeight)*guiScale) {
+                if (mouseX >= x*guiScale && mouseX <= (x + width)*guiScale) { // && mouseY <= y*guiScale && mouseY >= (y - textHeight)*guiScale I've removed this because it was causing the suggestions to disappear when the mouse was over the suggestions
                     List<String> suggestions = match.getSuggestedReplacements();
 
                     int boxX = x;
