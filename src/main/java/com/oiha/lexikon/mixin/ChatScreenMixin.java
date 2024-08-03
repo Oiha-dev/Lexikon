@@ -1,13 +1,16 @@
 package com.oiha.lexikon.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.oiha.lexikon.Lexikon;
 import com.oiha.lexikon.client.SpellChecker;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
+import net.minecraft.resource.Resource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -19,6 +22,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -51,7 +57,7 @@ public class ChatScreenMixin {
     @Unique
     private String lastRuleWord = "";
     @Unique
-    private static final Identifier SPELLCHECK_ICON = new Identifier("lexikon:textures/gui/floppydisk.png");
+    private static final Identifier SPELLCHECK_ICON = new Identifier("lexikon:textures/gui/floppydisk.bmp");
     @Unique
     private static final int ICON_SIZE = 13;
 
@@ -210,10 +216,11 @@ public class ChatScreenMixin {
 
         // Render the spellcheck icon
         fill(matrices, boxX + 1, boxY, boxX + ICON_SIZE + 1, boxY - ICON_SIZE + 1, 0xE0000000); // Background
-        RenderSystem.setShader(GameRenderer::getPositionShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, SPELLCHECK_ICON);
-        drawTexture(matrices, boxX + 1, boxY - ICON_SIZE + 2, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE); // Icon
+//        RenderSystem.setShader(GameRenderer::getPositionShader);
+//        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+//        RenderSystem.setShaderTexture(0, SPELLCHECK_ICON)
+//          drawTexture(matrices, boxX + 1, boxY - ICON_SIZE + 2, 0, 0, ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE); // Icon
+        drawBmpIcon(matrices, boxX + 1, boxY - ICON_SIZE + 2, ICON_SIZE, ICON_SIZE);
         fill(matrices, boxX, boxY, boxX + 1, boxY - ICON_SIZE + 1, 0xFFFFFFFF); // Horizontal line
         fill(matrices, boxX, boxY - ICON_SIZE + 1, boxX + ICON_SIZE + 1, boxY - ICON_SIZE + 2, 0xFFFFFFFF); // Upper line
         fill(matrices, boxX + ICON_SIZE + 1 , boxY, boxX + ICON_SIZE + 2, boxY - ICON_SIZE + 1, 0xFFFFFFFF);// Horizontal line 2
@@ -256,7 +263,6 @@ public class ChatScreenMixin {
         currentSuggestions.clear();
         currentErrorStart = 0;
         currentErrorEnd = 0;
-        selectedSuggestionIndex = 0;
         spellChecker.suggestionsOverlay.clear();
         currentSuggestionBox = null;
     }
@@ -284,7 +290,7 @@ public class ChatScreenMixin {
         }
     }
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    public void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+    public void onMouseClicked(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) throws IOException {
         if (currentSuggestionBox != null && !currentSuggestions.isEmpty()) {
             MinecraftClient client = MinecraftClient.getInstance();
             int boxX = (int) currentSuggestionBox[1];
@@ -305,18 +311,15 @@ public class ChatScreenMixin {
             // Check if the click is on the icon
             if (mouseY <= boxY && mouseY >= boxY - ICON_SIZE) {
                 String errorWord = chatField.getText().substring(currentErrorStart, currentErrorEnd);
-                System.out.println(errorWord);
-                List<String> minecraftNames = new ArrayList<>();
-                for(Item item : Registry.ITEM){
-                    minecraftNames.add(item.getName().getString());
+
+                // Save the word to the personal dictionary if it is not already there
+                if (!Lexikon.personalDictionary.contains(errorWord)) {
+                    Lexikon.personalDictionary.add(errorWord);
+                    FileWriter writer = new FileWriter("config/Lexikon/personalDictionary.txt", true);
+                    writer.write(errorWord + "\n");
+                    writer.close();
                 }
 
-                System.out.println(minecraftNames.size());
-
-
-                for (String name : minecraftNames) {
-                    System.out.println(name);
-                }
                 cir.setReturnValue(true);
                 return;
             }
@@ -338,6 +341,25 @@ public class ChatScreenMixin {
                     }
                 }
             }
+        }
+    }
+
+    @Unique
+    private void drawBmpIcon(MatrixStack matrices, int x, int y, int width, int height) {
+        // Load the icon texture from a bmp file and only draw the white pixels with the specified color
+        try {
+            InputStream stream = MinecraftClient.getInstance().getResourceManager().getResource(SPELLCHECK_ICON).getInputStream();
+            NativeImage image = NativeImage.read(stream);
+            for (int i = 0; i < width; i++) {
+                for (int j = 0; j < height; j++) {
+                    int color = image.getColor(i, j);
+                    if (color == 0xFFFFFFFF) {
+                        fill(matrices, x + i, y + j, x + i + 1, y + j + 1, 0xFFFFFFFF);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
