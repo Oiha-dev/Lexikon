@@ -11,11 +11,14 @@ base {
 }
 
 repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
+    maven {
+        name 'Xander Maven'
+        url 'https://maven.isxander.dev/releases'
+    }
+    maven {
+        name = "Terraformers"
+        url = "https://maven.terraformersmc.com/"
+    }
 }
 
 dependencies {
@@ -23,9 +26,29 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation include('org.languagetool:language-en:6.4')
-    modImplementation include('org.languagetool:languagetool-core:6.4')
+    modImplementation("dev.isxander:yet-another-config-lib:${project.yacl_version}")
+    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+    modImplementation include("org.languagetool:language-en:6.4")
+    modImplementation include("org.languagetool:language-de:6.4")
+    modImplementation include("org.languagetool:language-it:6.4")
+    modImplementation include("org.languagetool:language-es:6.4")
+    modImplementation include("org.languagetool:language-ca:6.4")
+    modImplementation include("org.languagetool:language-nl:6.4")
+    modImplementation include("org.languagetool:language-pt:6.4") {
+        exclude group: 'org.languagetool', module: 'portuguese-pos-dict'
+    }
+    modImplementation include("org.languagetool:language-fr:6.4") {
+        exclude group: 'org.languagetool', module: 'french-pos-dict'
+    }
+    modImplementation include("org.languagetool:languagetool-core:6.4")
     modImplementation include('org.languagetool:english-pos-dict:0.3')
+    modImplementation include('org.languagetool:french-pos-dict:0.5')
+    modImplementation include('org.languagetool:dutch-pos-dict:0.1')
+    modImplementation include('org.languagetool:portuguese-pos-dict:1.2.0')
+    modImplementation include('org.softcatala:catalan-pos-dict:2.25')
+    modImplementation include('org.softcatala:spanish-pos-dict:2.2')
+    modImplementation include('de.danielnaber:german-pos-dict:1.2.4')
+    modImplementation include('de.danielnaber:jwordsplitter:4.7')
     modImplementation include('net.loomchild:segment:2.0.1')
     modImplementation include('javax.xml.bind:jaxb-api:2.3.0')
     modImplementation include('javax.measure:unit-api:1.0')

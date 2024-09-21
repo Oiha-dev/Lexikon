@@ -20,10 +20,11 @@ public class Lexikon implements ModInitializer {
     public static final List<String> minecraftNames = new ArrayList<>();
     public static final List<String> personalDictionary = new ArrayList<>();
     public static final Logger LOGGER = LogManager.getLogger();
-    private static JLanguageTool langTool;
+    public static JLanguageTool langTool;
 
     @Override
     public void onInitialize() {
+
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             File file = new File("config/Lexikon/minecraftDictionary.txt");
             if (!file.exists()) {
@@ -86,7 +87,7 @@ public class Lexikon implements ModInitializer {
         langTool = new MultiThreadedJLanguageTool(Languages.getLanguageForShortCode("en-GB"));
     }
 
-    private void createFileIfNotExists(String path) {
+    public static Boolean createFileIfNotExists(String path) {
         File directory = new File("config/Lexikon");
         if (!directory.exists()) {
             if (!directory.mkdir()) {
@@ -102,10 +103,12 @@ public class Lexikon implements ModInitializer {
             } catch (IOException e) {
                 LOGGER.error("Failed to create " + path, e);
             }
+            return true;
         }
+        return false;
     }
 
-    private void updateFile(String path, List<String> Entry) {
+    public static void updateFile(String path, List<String> Entry) {
         File file = new File(path);
         try (FileWriter writer = new FileWriter(file)) {
             for (String name : Entry) {
@@ -139,5 +142,8 @@ public class Lexikon implements ModInitializer {
 
     public static JLanguageTool getLangTool() {
         return langTool;
+    }
+    public static void updateLanguageTool(String language) {
+        langTool = new MultiThreadedJLanguageTool(Languages.getLanguageForShortCode(language));
     }
 }

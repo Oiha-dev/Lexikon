@@ -20,7 +20,8 @@
     ],
     "main": [
       "com.oiha.lexikon.Lexikon"
-    ]
+    ],
+    "modmenu": [ "com.oiha.lexikon.client.ModMenuIntegration" ]
   },
   "mixins": [
     "lexikon.mixins.json"
@@ -29,5 +30,13 @@
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
     "minecraft": "${minecraft_version}"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/jEGF5fb",
+        "modmenu.kofi": "https://ko-fi.com/oiha_dev"
+      }
+    }
   }
 }
