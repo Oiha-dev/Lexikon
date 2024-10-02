@@ -141,7 +141,7 @@ public class ModMenuIntegration implements ModMenuApi {
                                 .option(Option.createBuilder(String.class)
                                         .name(Text.of("Language"))
                                         .binding("English (GB)", () -> ModConfig.currentLanguage, newValue -> ModConfig.currentLanguage = newValue)
-                                        .controller(opt -> new CyclingListController<>(opt, List.of("English (GB)", "English (US)", "French", "Spanish", "German", "Italian", "Dutch", "Portuguese", "Catalan")))
+                                        .controller(opt -> new CyclingListController<>(opt, List.of("English (GB)", "English (US)", "French", "Spanish", "German", "Italian", "Dutch", "Portuguese", "Catalan", "Swedish")))
                                         .build())
                                 .option(Option.createBuilder(boolean.class)
                                         .name(Text.of("Toggle the spellchecker"))
