@@ -394,7 +394,7 @@ public class ChatScreenMixin {
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShader(GameRenderer::getPositionTexProgram);
             RenderSystem.setShaderTexture(0, flagIdentifier);
 
             DrawableHelper.drawTexture(matrices, x, y, 0, 0, width, height, width, height);
