@@ -7,9 +7,10 @@
   "authors": [
     "Oiha"
   ],
-  "contact": {
-    "website": "oiha.fr",
-    "repo": "https://github.com/Oiha-dev/Lexikon"
+  "contact" : {
+    "homepage" : "https://oiha.fr",
+    "sources" : "https://github.com/CaffeineMC/sodium-fabric",
+    "issues" : "https://github.com/Oiha-dev/Lexikon/issues"
   },
   "license": "All-Rights-Reserved",
   "icon": "assets/lexikon/icon.png",
@@ -34,7 +35,7 @@
   "custom": {
     "modmenu": {
       "links": {
-        "modmenu.discord": "https://discord.gg/jEGF5fb",
+        "modmenu.discord": "https:discord.gg/3D9TwmdPgh",
         "modmenu.kofi": "https://ko-fi.com/oiha_dev"
       }
     }
