@@ -38,12 +38,12 @@ public class ModMenuIntegration implements ModMenuApi {
                                         .append(Text.literal(" "))
                                         .append(Text.literal("[Discord]")
                                                 .setStyle(Style.EMPTY
-                                                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.youtube.com/@Oiha_dev"))
+                                                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/3D9TwmdPgh"))
                                                         .withColor(0x5662f6).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))
                                         .append(Text.literal(" "))
                                         .append(Text.literal("[Github]")
                                                 .setStyle(Style.EMPTY
-                                                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/Oiha-dev"))
+                                                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/Oiha-dev/Lexikon"))
                                                         .withColor(Formatting.WHITE).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))
                                         .append(Text.literal(" "))
                                         .append(Text.literal("[Ko-fi]")
