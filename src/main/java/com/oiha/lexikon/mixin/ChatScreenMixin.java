@@ -60,19 +60,22 @@ public class ChatScreenMixin {
     @Unique
     private static final int ICON_SIZE = 13;
 
-    @Inject(method = "render", at = @At("HEAD"))
-    private void onTick(CallbackInfo ci) {
-        /*
-         * This part run every tick and is used to draw the red underline under the misspelled words
-         * It also displays the suggested corrections when the player hovers over the underlined word
-         */
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/TextFieldWidget;render(Lnet/minecraft/client/gui/DrawContext;IIF)V", shift = At.Shift.AFTER))
+    private void renderSuggestions(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         clearSuggestions();
+
         spellChecker.checkText(this.chatField);
         List<int[]> lines = spellChecker.lines;
         linesList.clear();
-
         linesList.addAll(lines);
         updateCurrentSuggestions();
+
+
+        //This is Claude's code, thank you Claude :)
+        context.getMatrices().push();
+        context.getMatrices().translate(0.0F, 0.0F, 200.0F);
+        onRender(context);
+        context.getMatrices().pop();
     }
 
     @Unique
@@ -137,8 +140,7 @@ public class ChatScreenMixin {
                 mouseY >= (boxY - boxHeight) && mouseY <= boxY) || (int)suggestion[5] <= chatField.getCursor() && (int)suggestion[6] >= chatField.getCursor();
     }
 
-    @Inject(method = "render", at = @At("RETURN"))
-    private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) throws InstantiationException, IllegalAccessException {
+    private void onRender(DrawContext context)  {
         /*
          * This method is called every frame and is used to render the red underlines and the suggestions
          * It also removes the red underlines after some time
