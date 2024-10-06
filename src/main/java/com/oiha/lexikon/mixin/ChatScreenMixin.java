@@ -5,12 +5,11 @@ import com.oiha.lexikon.Lexikon;
 import com.oiha.lexikon.client.ModConfig;
 import com.oiha.lexikon.client.SpellChecker;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,7 +30,6 @@ import java.util.Objects;
 import static com.oiha.lexikon.client.ModConfig.*;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static net.minecraft.client.gui.DrawableHelper.*;
 
 @Mixin(ChatScreen.class)
 public class ChatScreenMixin {
@@ -58,24 +56,28 @@ public class ChatScreenMixin {
     @Unique
     private String lastRuleWord = "";
     @Unique
-    private static final Identifier SPELLCHECK_ICON = new Identifier("lexikon:textures/gui/"+ ModConfig.iconStyle + ".bmp");
+    private static final Identifier SPELLCHECK_ICON = new Identifier("lexikon:textures/gui/"+ ModConfig.iconStyle + ".png");
     @Unique
     private static final int ICON_SIZE = 13;
 
-    @Inject(method = "tick", at = @At("HEAD"))
-    private void onTick(CallbackInfo ci) {
-        /*
-         * This part run every tick and is used to draw the red underline under the misspelled words
-         * It also displays the suggested corrections when the player hovers over the underlined word
-         */
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/TextFieldWidget;render(Lnet/minecraft/client/gui/DrawContext;IIF)V", shift = At.Shift.AFTER))
+    private void renderSuggestions(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         clearSuggestions();
+
         spellChecker.checkText(this.chatField);
         List<int[]> lines = spellChecker.lines;
         linesList.clear();
-
         linesList.addAll(lines);
         updateCurrentSuggestions();
+
+
+        //This is Claude's code, thank you Claude :)
+        context.getMatrices().push();
+        context.getMatrices().translate(0.0F, 0.0F, 200.0F);
+        onRender(context);
+        context.getMatrices().pop();
     }
+
 
     @Unique
     private void updateCurrentSuggestions() {
@@ -139,8 +141,8 @@ public class ChatScreenMixin {
                 mouseY >= (boxY - boxHeight) && mouseY <= boxY) || (int)suggestion[5] <= chatField.getCursor() && (int)suggestion[6] >= chatField.getCursor();
     }
 
-    @Inject(method = "render", at = @At("RETURN"))
-    private void onRender(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) throws InstantiationException, IllegalAccessException {
+    @Unique
+    private void onRender(DrawContext context) {
         /*
          * This method is called every frame and is used to render the red underlines and the suggestions
          * It also removes the red underlines after some time
@@ -150,34 +152,34 @@ public class ChatScreenMixin {
             int x1 = max(line[0], 4);
             int x2 = min(line[0] + line[2], MinecraftClient.getInstance().getWindow().getScaledWidth() - 4); // This prevents the underline from going off chat box
             if (underlineStyle.equals("Straight")) {
-                fill(matrices, x1, line[1], x2, line[1] + line[3], line[4]);
+                context.fill(x1, line[1], x2, line[1] + line[3], line[4]);
             }
             else if (underlineStyle.equals("Wavy")) {
                 boolean up = true;
                 for (int i = line[0]; i < x2; i += 2) {
                     int yOffset = up ? -1 : 0;
-                    fill(matrices, i, line[1] + yOffset, i + 2, line[1] + yOffset + line[3], line[4]);
+                    context.fill(i, line[1] + yOffset, i + 2, line[1] + yOffset + line[3], line[4]);
                     up = !up;
                 }
             }
             else if (underlineStyle.equals("Dotted")) {
                 for (int i = line[0]; i < x2; i += 2) {
-                    fill(matrices, i, line[1], i + 1, line[1] + line[3], line[4]);
+                    context.fill(i, line[1], i + 1, line[1] + line[3], line[4]);
                 }
             }
         }
 
-        renderSuggestions(matrices);
+        renderSuggestions(context);
 
         if (RuleDescription != null && showRuleDescription &&
                 currentErrorStart >= 0 && currentErrorEnd <= chatField.getText().length() &&
                 currentErrorStart < currentErrorEnd &&
                 lastRuleWord.equals(chatField.getText().substring(currentErrorStart, currentErrorEnd))) {
-            renderRuleDescription(matrices);
+            renderRuleDescription(context);
         }
 
         if (ModConfig.flagButtonEnabled) {
-            drawFlagIcon(matrices, MinecraftClient.getInstance().getWindow().getScaledWidth() - 18 - 3, MinecraftClient.getInstance().getWindow().getScaledHeight() - 15 - 12, 18, 12, ModConfig.currentLanguage);
+            drawFlagIcon(context, MinecraftClient.getInstance().getWindow().getScaledWidth() - 18 - 3, MinecraftClient.getInstance().getWindow().getScaledHeight() - 15 - 12, 18, 12, ModConfig.currentLanguage);
         }
     }
 
@@ -192,7 +194,7 @@ public class ChatScreenMixin {
                 String currentText = chatField.getText();
                 String correctedText = currentText.substring(0, currentErrorStart) + correction + currentText.substring(currentErrorEnd);
                 chatField.setText(correctedText);
-                chatField.setCursor(currentErrorStart + correction.length());
+                chatField.setCursor(currentErrorStart + correction.length(), false);
 
                 // Clear suggestions and reset error bounds
                 clearSuggestions();
@@ -204,7 +206,7 @@ public class ChatScreenMixin {
     }
 
     @Unique
-    private void renderSuggestions(MatrixStack matrices) {
+    private void renderSuggestions(DrawContext context) {
         if (currentSuggestionBox == null || currentSuggestions.isEmpty()) return;
 
         MinecraftClient client = MinecraftClient.getInstance();
@@ -224,39 +226,39 @@ public class ChatScreenMixin {
         boxY = max(boxY, 0) - 10;
         
 
-        fill(matrices, boxX, boxY, boxX + boxWidth, boxY + boxHeight, ModConfig.suggestionBackgroundColor.getRGB());
+        context.fill(boxX, boxY, boxX + boxWidth, boxY + boxHeight, ModConfig.suggestionBackgroundColor.getRGB());
         int OutlineColor = ModConfig.outlineEnabled ? ModConfig.outlineColor.getRGB() : 0x00000000;
-        fill(matrices, boxX, boxY + boxHeight - 1, boxX + boxWidth, boxY + boxHeight, OutlineColor);
-        fill(matrices, boxX, boxY, boxX + 1, boxY + boxHeight, OutlineColor);
-        fill(matrices, boxX + boxWidth - 1, boxY, boxX + boxWidth, boxY + boxHeight, OutlineColor);
+        context.fill(boxX, boxY + boxHeight - 1, boxX + boxWidth, boxY + boxHeight, OutlineColor);
+        context.fill(boxX, boxY, boxX + 1, boxY + boxHeight, OutlineColor);
+        context.fill(boxX + boxWidth - 1, boxY, boxX + boxWidth, boxY + boxHeight, OutlineColor);
 
 
         if (!ModConfig.dictionaryEnabled) {
-            fill(matrices, boxX, boxY, boxX + boxWidth, boxY + 1, OutlineColor); // Top border
+            context.fill(boxX, boxY, boxX + boxWidth, boxY + 1, OutlineColor); // Top border
         }
 
         // Render the spellcheck icon
         if (ModConfig.dictionaryEnabled) {
-            fill(matrices, boxX + 1, boxY, boxX + ICON_SIZE + 1, boxY - ICON_SIZE + 1, ModConfig.suggestionBackgroundColor.getRGB()); // Background
-            drawBmpIcon(matrices, boxX + 1, boxY - ICON_SIZE + 2, ICON_SIZE, ICON_SIZE);
-            fill(matrices, boxX, boxY, boxX + 1, boxY - ICON_SIZE + 1, OutlineColor); // Horizontal line
-            fill(matrices, boxX, boxY - ICON_SIZE + 1, boxX + ICON_SIZE + 1, boxY - ICON_SIZE + 2, OutlineColor); // Upper line
-            fill(matrices, boxX + ICON_SIZE + 1, boxY, boxX + ICON_SIZE + 2, boxY - ICON_SIZE + 1, OutlineColor);// Horizontal line 2
-            fill(matrices, boxX + ICON_SIZE + 1, boxY, boxX + boxWidth, boxY + 1, OutlineColor); // Bottom line
+            context.fill(boxX + 1, boxY, boxX + ICON_SIZE + 1, boxY - ICON_SIZE + 1, ModConfig.suggestionBackgroundColor.getRGB()); // Background
+            drawPNGIcon(context, boxX + 1, boxY - ICON_SIZE + 2, ICON_SIZE, ICON_SIZE);
+            context.fill(boxX, boxY, boxX + 1, boxY - ICON_SIZE + 1, OutlineColor); // Horizontal line
+            context.fill(boxX, boxY - ICON_SIZE + 1, boxX + ICON_SIZE + 1, boxY - ICON_SIZE + 2, OutlineColor); // Upper line
+            context.fill(boxX + ICON_SIZE + 1, boxY, boxX + ICON_SIZE + 2, boxY - ICON_SIZE + 1, OutlineColor);// Horizontal line 2
+            context.fill(boxX + ICON_SIZE + 1, boxY, boxX + boxWidth, boxY + 1, OutlineColor); // Bottom line
         }
 
         for (int i = 0; i < currentSuggestions.size(); i++) {
             int textY = boxY + 11 + i * (client.textRenderer.fontHeight + 4);
             int textColor = (i == selectedSuggestionIndex) ? ModConfig.chosenSuggestionColor.getRGB() : ModConfig.suggestionColor.getRGB();
             if (i == selectedSuggestionIndex) {
-                fill(matrices, boxX + 1, textY - 10, boxX + boxWidth - 1, textY + client.textRenderer.fontHeight - 8, 0x80808080);
+                context.fill(boxX + 1, textY - 10, boxX + boxWidth - 1, textY + client.textRenderer.fontHeight - 8, 0x80808080);
             }
-            drawTextWithShadow(matrices, client.textRenderer, Text.of(currentSuggestions.get(i)), boxX + 4, textY - 8, textColor);
+            context.drawTextWithShadow(client.textRenderer, Text.of(currentSuggestions.get(i)), boxX + 4, textY - 8, textColor);
         }
     }
 
     @Unique
-    private void renderRuleDescription(MatrixStack matrices) {
+    private void renderRuleDescription(DrawContext context) {
         if (currentSuggestionBox == null || currentSuggestions.isEmpty()) return;
         /*
          * This method is called when the player right clicks on a suggestion
@@ -268,14 +270,14 @@ public class ChatScreenMixin {
         int boxY = (int) currentSuggestionBox[2] - (client.textRenderer.fontHeight + 4) * currentSuggestions.size() - ICON_SIZE * 2 - 11;
         int boxWidth = client.textRenderer.getWidth(RuleDescription) + 7;
         int boxHeight = (client.textRenderer.fontHeight + 4);
-        fill(matrices, boxX, boxY, boxX + boxWidth + 1, boxY + boxHeight + 1, ModConfig.suggestionBackgroundColor.getRGB()); // Background
+        context.fill(boxX, boxY, boxX + boxWidth + 1, boxY + boxHeight + 1, ModConfig.suggestionBackgroundColor.getRGB()); // Background
         int OutlineColor = ModConfig.outlineEnabled ? ModConfig.outlineColor.getRGB() : 0x00000000;
-        fill(matrices, boxX, boxY, boxX + boxWidth + 1, boxY + 1, OutlineColor); // Bottom line
-        fill(matrices, boxX, boxY, boxX + 1, boxY + boxHeight, OutlineColor); // Left line
-        fill(matrices, boxX + boxWidth, boxY, boxX + boxWidth + 1, boxY + boxHeight, OutlineColor); // Right line
-        fill(matrices, boxX, boxY + boxHeight, boxX + boxWidth + 1, boxY + boxHeight + 1, OutlineColor); // Top line
+        context.fill(boxX, boxY, boxX + boxWidth + 1, boxY + 1, OutlineColor); // Bottom line
+        context.fill(boxX, boxY, boxX + 1, boxY + boxHeight, OutlineColor); // Left line
+        context.fill(boxX + boxWidth, boxY, boxX + boxWidth + 1, boxY + boxHeight, OutlineColor); // Right line
+        context.fill(boxX, boxY + boxHeight, boxX + boxWidth + 1, boxY + boxHeight + 1, OutlineColor); // Top line
 
-        drawTextWithShadow(matrices, client.textRenderer, Text.of(RuleDescription), boxX + 4, boxY + 3, ModConfig.suggestionColor.getRGB());
+        context.drawTextWithShadow(client.textRenderer, Text.of(RuleDescription), boxX + 4, boxY + 3, ModConfig.suggestionColor.getRGB());
     }
 
     @Unique
@@ -364,8 +366,7 @@ public class ChatScreenMixin {
     }
 
     @Unique
-    private void drawBmpIcon(MatrixStack matrices, int x, int y, int width, int height) {
-        // Load the icon texture from a bmp file and only draw the white pixels with the specified color
+    private void drawPNGIcon(DrawContext context, int x, int y, int width, int height) {
         try {
             InputStream stream = MinecraftClient.getInstance().getResourceManager().getResource(SPELLCHECK_ICON).get().getInputStream();
             NativeImage image = NativeImage.read(stream);
@@ -373,35 +374,25 @@ public class ChatScreenMixin {
                 for (int j = 0; j < height; j++) {
                     int color = image.getColor(i, j);
                     if (color == 0xFFFFFFFF) {
-                        fill(matrices, x + i, y + j, x + i + 1, y + j + 1, ModConfig.dictionaryIconColor.getRGB());
+                        context.fill(x + i, y + j, x + i + 1, y + j + 1, ModConfig.dictionaryIconColor.getRGB());
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
         }
     }
     @Unique
-    private void drawFlagIcon(MatrixStack matrices, int x, int y, int width, int height, String flag) {
-        MinecraftClient client = MinecraftClient.getInstance();
+    private void drawFlagIcon(DrawContext context, int x, int y, int width, int height, String flag) {
         Identifier flagIdentifier = new Identifier("lexikon:textures/flag/" + ISOLanguages.get(possibleLanguages.indexOf(flag)).toLowerCase() + ".png");
 
-        try {
-            client.getResourceManager().getResource(flagIdentifier);
 
-            client.getTextureManager().bindTexture(flagIdentifier);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, flagIdentifier);
+        context.drawTexture(flagIdentifier, x, y, 0, 0, width, height, width, height);
 
-            DrawableHelper.drawTexture(matrices, x, y, 0, 0, width, height, width, height);
-
-            RenderSystem.disableBlend();
-        } catch (Exception e) {
-            Lexikon.LOGGER.error("Failed to render flag icon: " + flagIdentifier, e);
-        }
+        RenderSystem.disableBlend();
     }
 }
