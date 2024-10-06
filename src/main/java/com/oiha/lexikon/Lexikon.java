@@ -6,7 +6,8 @@ import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.languagetool.JLanguageTool;
@@ -33,20 +34,15 @@ public class Lexikon implements ModInitializer {
                 sure that all mods are loaded to get their blocks/items
                 */
                 minecraftNames.clear();
-                for (Item item : Registry.ITEM) {
+                for (Item item : Registries.ITEM) {
                     List<String> splitNames = List.of(item.getName().getString().split(" "));
                     minecraftNames.addAll(splitNames);
                 }
-                for (Block block : Registry.BLOCK) {
+                for (Block block : Registries.BLOCK) {
                     List<String> splitNames = List.of(block.getName().getString().split(" "));
                     minecraftNames.addAll(splitNames);
                 }
-                for (Enchantment enchantment : Registry.ENCHANTMENT) {
-                    String strEnchantment = enchantment.getName(0).getString();
-                    List<String> splitNames = List.of(strEnchantment.substring(0, strEnchantment.length() - 20).split(" "));
-                    minecraftNames.addAll(splitNames);
-                }
-                for (EntityType<?> entityType : Registry.ENTITY_TYPE) {
+                for (EntityType<?> entityType : Registries.ENTITY_TYPE) {
                     List<String> splitNames = List.of(entityType.getName().getString().split(" "));
                     minecraftNames.addAll(splitNames);
                 }
