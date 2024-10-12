@@ -35,6 +35,12 @@ dependencies {
     modImplementation include("org.languagetool:language-ca:6.4")
     modImplementation include("org.languagetool:language-nl:6.4")
     modImplementation include("org.languagetool:language-sv:6.4")
+    modImplementation include("org.languagetool:language-da:6.4")
+    modImplementation include("org.languagetool:language-eo:6.4")
+    modImplementation include("org.languagetool:language-el:6.4")
+    modImplementation include("org.languagetool:language-ga:6.4")
+    modImplementation include("org.languagetool:language-ro:6.4")
+    modImplementation include("org.languagetool:language-sk:6.4")
     modImplementation include("org.languagetool:language-pt:6.4") {
         exclude group: 'org.languagetool', module: 'portuguese-pos-dict'
     }
