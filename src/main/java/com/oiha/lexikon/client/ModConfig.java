@@ -54,9 +54,6 @@ public class ModConfig {
         add("nl-NL");
         add("pt-PT");
         add("ca-ES");
-        add("sv-SE");
-        add("da-DK");
-        add("eo");
         add("el-GR");
         add("ga-IE");
         add("ro-RO");
@@ -72,9 +69,6 @@ public class ModConfig {
         add("Dutch");
         add("Portuguese");
         add("Catalan");
-        add("Swedish");
-        add("Danish");
-        add("Esperanto");
         add("Greek");
         add("Irish");
         add("Romanian");

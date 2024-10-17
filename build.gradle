@@ -34,9 +34,6 @@ dependencies {
     modImplementation include("org.languagetool:language-es:6.5")
     modImplementation include("org.languagetool:language-ca:6.5")
     modImplementation include("org.languagetool:language-nl:6.5")
-    modImplementation include("org.languagetool:language-sv:6.5")
-    modImplementation include("org.languagetool:language-da:6.5")
-    modImplementation include("org.languagetool:language-eo:6.5")
     modImplementation include("org.languagetool:language-el:6.5")
     modImplementation include("org.languagetool:language-ga:6.5")
     modImplementation include("org.languagetool:language-ro:6.5")
@@ -111,6 +108,8 @@ dependencies {
     modImplementation include('org.json:json:20231013')
     modImplementation include('org.jvnet.staxex:stax-ex:1.7.8')
     modImplementation include('org.slf4j:slf4j-api:2.0.7')
+
+
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
