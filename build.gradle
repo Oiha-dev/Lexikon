@@ -52,6 +52,8 @@ dependencies {
     modImplementation include('org.softcatala:catalan-pos-dict:2.25')
     modImplementation include('org.softcatala:spanish-pos-dict:2.2')
     modImplementation include('de.danielnaber:german-pos-dict:1.2.4')
+    modImplementation include('io.github.jimregan:languagetool-ga-dicts:0.02')
+    modImplementation include('org.ioperm:morphology-el:1.0.0')
     modImplementation include('de.danielnaber:jwordsplitter:4.7')
     modImplementation include('net.loomchild:segment:2.0.1')
     modImplementation include('javax.xml.bind:jaxb-api:2.3.0')
