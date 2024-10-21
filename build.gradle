@@ -35,7 +35,10 @@ dependencies {
     modImplementation include("org.languagetool:language-es:6.4")
     modImplementation include("org.languagetool:language-ca:6.4")
     modImplementation include("org.languagetool:language-nl:6.4")
-    modImplementation include("org.languagetool:language-sv:6.4")
+    modImplementation include("org.languagetool:language-el:6.4")
+    modImplementation include("org.languagetool:language-ga:6.4")
+    modImplementation include("org.languagetool:language-ro:6.4")
+    modImplementation include("org.languagetool:language-sk:6.4")
     modImplementation include("org.languagetool:language-pt:6.4") {
         exclude group: 'org.languagetool', module: 'portuguese-pos-dict'
     }
@@ -50,6 +53,8 @@ dependencies {
     modImplementation include('org.softcatala:catalan-pos-dict:2.25')
     modImplementation include('org.softcatala:spanish-pos-dict:2.2')
     modImplementation include('de.danielnaber:german-pos-dict:1.2.4')
+    modImplementation include('io.github.jimregan:languagetool-ga-dicts:0.02')
+    modImplementation include('org.ioperm:morphology-el:1.0.0')
     modImplementation include('de.danielnaber:jwordsplitter:4.7')
     modImplementation include('net.loomchild:segment:2.0.1')
     modImplementation include('javax.xml.bind:jaxb-api:2.3.0')
@@ -106,6 +111,8 @@ dependencies {
     modImplementation include('org.json:json:20231013')
     modImplementation include('org.jvnet.staxex:stax-ex:1.7.8')
     modImplementation include('org.slf4j:slf4j-api:2.0.7')
+
+
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"

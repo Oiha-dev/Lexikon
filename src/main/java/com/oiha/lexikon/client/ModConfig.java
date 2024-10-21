@@ -55,7 +55,10 @@ public class ModConfig {
         add("nl-NL");
         add("pt-PT");
         add("ca-ES");
-        add("sv-SE");
+        add("el-GR");
+        add("ga-IE");
+        add("ro-RO");
+        add("sk-SK");
     }};
     public static final List<String> possibleLanguages = new ArrayList<>(){{
         add("English (GB)");
@@ -67,7 +70,10 @@ public class ModConfig {
         add("Dutch");
         add("Portuguese");
         add("Catalan");
-        add("Swedish");
+        add("Greek");
+        add("Irish");
+        add("Romanian");
+        add("Slovak");
     }};
 
 
