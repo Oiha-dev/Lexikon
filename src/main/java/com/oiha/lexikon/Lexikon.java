@@ -1,5 +1,6 @@
 package com.oiha.lexikon;
 
+import com.oiha.lexikon.client.ModConfig;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.block.Block;
@@ -25,14 +26,24 @@ public class Lexikon implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        // Load the configuration
+        ModConfig.load();
+
+        // Set the language tool based on the loaded language from the configuration
+        String language = "en-US";
+        if (ModConfig.currentLanguage != null) {
+            int languageIndex = ModConfig.possibleLanguages.indexOf(ModConfig.currentLanguage);
+            if (languageIndex != -1) {
+                language = ModConfig.ISOLanguages.get(languageIndex);
+            } else {
+                LOGGER.error("Invalid language in config: " + ModConfig.currentLanguage);
+            }
+        }
+        langTool = new MultiThreadedJLanguageTool(Languages.getLanguageForShortCode(language));
 
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             File file = new File("config/Lexikon/minecraftDictionary.txt");
             if (!file.exists()) {
-                /*
-                This code will run when a player joins a server/single player to be
-                sure that all mods are loaded to get their blocks/items
-                */
                 minecraftNames.clear();
                 for (Item item : Registries.ITEM) {
                     List<String> splitNames = List.of(item.getName().getString().split(" "));
@@ -65,7 +76,7 @@ public class Lexikon implements ModInitializer {
 
                 createFileIfNotExists("config/Lexikon/minecraftDictionary.txt");
                 updateFile("config/Lexikon/minecraftDictionary.txt", minecraftNames);
-            }else {
+            } else {
                 minecraftNames.clear();
                 minecraftNames.addAll(Arrays.asList(readFileContent("config/Lexikon/minecraftDictionary.txt")));
             }
@@ -73,14 +84,13 @@ public class Lexikon implements ModInitializer {
             File personalDictionaryFile = new File("config/Lexikon/personalDictionary.txt");
             if (!personalDictionaryFile.exists()) {
                 createFileIfNotExists("config/Lexikon/personalDictionary.txt");
-            }else {
+            } else {
                 personalDictionary.clear();
                 personalDictionary.addAll(Arrays.asList(readFileContent("config/Lexikon/personalDictionary.txt")));
             }
         });
 
         LOGGER.info("Lexikon mod has been loaded on the server side");
-        langTool = new MultiThreadedJLanguageTool(Languages.getLanguageForShortCode("en-GB"));
     }
 
     public static Boolean createFileIfNotExists(String path) {
