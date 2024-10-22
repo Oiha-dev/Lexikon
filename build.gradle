@@ -28,29 +28,29 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation("dev.isxander:yet-another-config-lib:${project.yacl_version}")
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
-    modImplementation include("org.languagetool:language-en:6.4")
-    modImplementation include("org.languagetool:language-de:6.4")
-    modImplementation include("org.languagetool:language-it:6.4")
-    modImplementation include("org.languagetool:language-es:6.4")
-    modImplementation include("org.languagetool:language-ca:6.4")
-    modImplementation include("org.languagetool:language-nl:6.4")
-    modImplementation include("org.languagetool:language-el:6.4")
-    modImplementation include("org.languagetool:language-ga:6.4")
-    modImplementation include("org.languagetool:language-ro:6.4")
-    modImplementation include("org.languagetool:language-sk:6.4")
-    modImplementation include("org.languagetool:language-pt:6.4") {
+    modImplementation include("org.languagetool:language-en:6.5")
+    modImplementation include("org.languagetool:language-de:6.5")
+    modImplementation include("org.languagetool:language-it:6.5")
+    modImplementation include("org.languagetool:language-es:6.5")
+    modImplementation include("org.languagetool:language-ca:6.5")
+    modImplementation include("org.languagetool:language-nl:6.5")
+    modImplementation include("org.languagetool:language-el:6.5")
+    modImplementation include("org.languagetool:language-ga:6.5")
+    modImplementation include("org.languagetool:language-ro:6.5")
+    modImplementation include("org.languagetool:language-sk:6.5")
+    modImplementation include("org.languagetool:language-pt:6.5") {
         exclude group: 'org.languagetool', module: 'portuguese-pos-dict'
     }
-    modImplementation include("org.languagetool:language-fr:6.4") {
+    modImplementation include("org.languagetool:language-fr:6.5") {
         exclude group: 'org.languagetool', module: 'french-pos-dict'
     }
-    modImplementation include("org.languagetool:languagetool-core:6.4")
+    modImplementation include("org.languagetool:languagetool-core:6.5")
     modImplementation include('org.languagetool:english-pos-dict:0.3')
     modImplementation include('org.languagetool:french-pos-dict:0.5')
     modImplementation include('org.languagetool:dutch-pos-dict:0.1')
     modImplementation include('org.languagetool:portuguese-pos-dict:1.2.0')
-    modImplementation include('org.softcatala:catalan-pos-dict:2.25')
-    modImplementation include('org.softcatala:spanish-pos-dict:2.2')
+    modImplementation include('org.softcatala:catalan-pos-dict:2.26')
+    modImplementation include('org.softcatala:spanish-pos-dict:2.3')
     modImplementation include('de.danielnaber:german-pos-dict:1.2.4')
     modImplementation include('io.github.jimregan:languagetool-ga-dicts:0.02')
     modImplementation include('org.ioperm:morphology-el:1.0.0')
