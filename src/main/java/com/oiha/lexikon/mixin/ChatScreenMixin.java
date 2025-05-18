@@ -9,6 +9,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -371,7 +372,7 @@ public class ChatScreenMixin {
             NativeImage image = NativeImage.read(stream);
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {
-                    int color = image.getColor(i, j);
+                    int color = image.getColorArgb(i, j);
                     if (color == 0xFFFFFFFF) {
                         context.fill(x + i, y + j, x + i + 1, y + j + 1, ModConfig.dictionaryIconColor.getRGB());
                     }
@@ -384,14 +385,6 @@ public class ChatScreenMixin {
     private void drawFlagIcon(DrawContext context, int x, int y, int width, int height, String flag) {
         Identifier flagIdentifier = Identifier.of("lexikon:textures/flag/" + ISOLanguages.get(possibleLanguages.indexOf(flag)).toLowerCase() + ".png");
 
-
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
-        context.drawTexture(flagIdentifier, x, y, 0, 0, width, height, width, height);
-
-        RenderSystem.disableBlend();
+        context.drawTexture(RenderLayer::getGuiTextured, flagIdentifier, x, y, 0, 0, width, height, width, height);
     }
 }

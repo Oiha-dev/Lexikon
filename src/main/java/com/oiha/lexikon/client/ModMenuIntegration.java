@@ -16,6 +16,8 @@ import oshi.software.os.linux.LinuxOSFileStore;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,27 +36,27 @@ public class ModMenuIntegration implements ModMenuApi {
                         .option(LabelOption.create(Text.literal("Hi, I'm Oiha, the developer of Lexikon.\n\nI hope you enjoy using Lexikon. If you need any help on how to use Lexikon, I have a video on youtube that explain in detail how to use it. \n\nIf you have any suggestions or feedback, please let me know. You can contact me on the community discord server or on my Github page. \n\nI want to really thank you for using Lexikon, this is a project that I have been working on for a long time and I'm really happy to see that people are using it. I'm not that good at moding but I'm trying my best to make mods that are useful and fun to use. \n\nSo if Lexikon helps you I would appreciate that you leave me a tip on my Ko-fi page. Also if you need a Minecraft server you can try BisectHosting with my link, that also helps me ;) \n\nThank you for using Lexikon!\n\n- Oiha\n\n")
                                 .append(Text.literal("[YouTube]")
                                         .setStyle(Style.EMPTY
-                                                .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:www.youtube.com/@Oiha_dev"))
+                                                .withClickEvent(() -> openLink("https://www.youtube.com/@OihaDev"))
                                                 .withColor(Formatting.RED).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))
                                 .append(Text.literal(" "))
                                 .append(Text.literal("[Discord]")
                                         .setStyle(Style.EMPTY
-                                                .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:discord.gg/3D9TwmdPgh"))
+                                                .withClickEvent(() -> openLink("https:discord.gg/3D9TwmdPgh"))
                                                 .withColor(0x5662f6).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))
                                 .append(Text.literal(" "))
                                 .append(Text.literal("[Github]")
                                         .setStyle(Style.EMPTY
-                                                .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:github.com/Oiha-dev/Lexikon"))
+                                                .withClickEvent(() -> openLink("https:github.com/Oiha-dev/Lexikon"))
                                                 .withColor(Formatting.WHITE).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))
                                 .append(Text.literal(" "))
                                 .append(Text.literal("[Ko-fi]")
                                         .setStyle(Style.EMPTY
-                                                .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:ko-fi.com/oiha_dev"))
+                                                .withClickEvent(() -> openLink("https:ko-fi.com/oiha_dev"))
                                                 .withColor(Formatting.LIGHT_PURPLE).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))
                                 .append(Text.literal(" "))
                                 .append(Text.literal("[BisectHosting]")
                                         .setStyle(Style.EMPTY
-                                                .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https:bisecthosting.com/oiha"))
+                                                .withClickEvent(() -> openLink("https:bisecthosting.com/oiha"))
                                                 .withColor(Formatting.AQUA).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))))
                         .build())
                 .category(ConfigCategory.createBuilder()
@@ -251,7 +253,15 @@ public class ModMenuIntegration implements ModMenuApi {
             pb.start();
         } catch (IOException | UnsupportedOperationException e) {
             e.printStackTrace();
-             //Handle the exception appropriately, perhaps by displaying an error message to the user
         }
+    }
+
+    private ClickEvent.Action openLink(String link) {
+        try {
+            new ClickEvent.OpenUrl(new URI(link));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 }

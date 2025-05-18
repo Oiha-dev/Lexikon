@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.6-SNAPSHOT'
+    id 'fabric-loom' version '1.10-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -26,7 +26,7 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation("dev.isxander:yet-another-config-lib:${project.yacl_version}+1.21-fabric")
+    modImplementation("dev.isxander:yet-another-config-lib:${project.yacl_version}+1.21.5-fabric")
 
     modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
     modImplementation include("org.languagetool:language-en:6.4")
@@ -131,7 +131,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 21
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
