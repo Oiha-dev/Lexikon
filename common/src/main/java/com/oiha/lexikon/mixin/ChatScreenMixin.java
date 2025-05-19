@@ -17,7 +17,7 @@ public class ChatScreenMixin {
     private String lexikon$prevMessage = "";
 
     @Inject(method = "onEdited" , at = @At("HEAD"))
-    private void onEdited(String message, CallbackInfo ci) throws IOException {
+    private void onEdited(String message, CallbackInfo ci) {
         if (!Objects.equals(message, lexikon$prevMessage)) {
             SpellChecker.getInstance().check(message);
             lexikon$prevMessage = message;
