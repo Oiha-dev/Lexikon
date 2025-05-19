@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "lexikon",
+  "version": "${version}",
+  "name": "Lexikon",
+  "description": "",
+  "authors": [
+    ""
+  ],
+  "contact": {
+    "homepage": ""
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/lexikon/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.oiha.lexikon.fabric.LexikonFabric"
+    ],
+    "client": [
+      "com.oiha.lexikon.fabric.client.LexikonFabricClient"
+    ]
+  },
+  "mixins": [
+    "lexikon.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
