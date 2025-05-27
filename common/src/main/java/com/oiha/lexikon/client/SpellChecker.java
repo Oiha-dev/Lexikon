@@ -1,4 +1,4 @@
-package com.oiha.lexikon.Spellcheck;
+package com.oiha.lexikon.client;
 
 import com.oiha.lexikon.Lexikon;
 import net.minecraft.client.Minecraft;
@@ -30,7 +30,8 @@ public class SpellChecker {
     public void checkText(EditBox chatField) {
         long currentTickTime = System.currentTimeMillis();
         String text = chatField.getValue();
-        if ((!text.isEmpty() && (text.charAt(0) != '/' || ModConfig.spellcheckerInCommands)) && ModConfig.spellcheckerEnabled) {
+        // TODO: Make the config
+        if ((!text.isEmpty() && (text.charAt(0) != '/' /*|| ModConfig.spellcheckerInCommands*/)) /*&& ModConfig.spellcheckerEnabled*/) {
             if (currentTickTime - lastTickTime >= 1000) {
                 executorService.submit(() -> {
                     try {
@@ -60,13 +61,16 @@ public class SpellChecker {
 
 
                 // Check if the matched text is in the minecraftNames list or personalDictionary list
-                boolean isMinecraftName = Lexikon.minecraftNames.stream().anyMatch(name -> name.equalsIgnoreCase(text.substring(from, to)));
-                boolean isPersonalDictionary = Lexikon.personalDictionary.stream().anyMatch(name -> name.equalsIgnoreCase(text.substring(from, to)));
+                // TODO: Make Dictionary
+                boolean isMinecraftName = false; //Lexikon.minecraftNames.stream().anyMatch(name -> name.equalsIgnoreCase(text.substring(from, to)));
+                boolean isPersonalDictionary = false; //Lexikon.personalDictionary.stream().anyMatch(name -> name.equalsIgnoreCase(text.substring(from, to)));
 
                 if (isMinecraftName && match.getSuggestedReplacements().isEmpty() || isPersonalDictionary) { // If the match is part of a Minecraft name and has no suggestions or is part of the personal dictionary
                     continue; // Skip this match if it's part of a Minecraft name
                 } else if (isMinecraftName && !match.getSuggestedReplacements().isEmpty()) { // If the match is part of a Minecraft name and has suggestions
-                    Color = ModConfig.underineMinecraftColor.getRGB(); // Yellow
+                    // TODO: Make the config
+                    //Color = ModConfig.underineMinecraftColor.getRGB(); // Yellow
+                    Color = 0xFFFF00; // Yellow
                 }
 
                 int scrollOffset = Minecraft.getInstance().font.width(text.substring(0, ((EditBoxMixin) chatField).getFirstCharacterIndex()));
