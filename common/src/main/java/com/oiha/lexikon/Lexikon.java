@@ -1,5 +1,6 @@
 package com.oiha.lexikon;
 
+import com.oiha.lexikon.client.ModConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -22,6 +23,22 @@ public final class Lexikon {
     public static JLanguageTool langTool;
 
     public static void init() {
+        // Load the configuration
+        ModConfig.load();
+
+        // Set the language tool based on the loaded language from the configuration
+        String language = "en-US";
+        if (ModConfig.currentLanguage != null) {
+            int languageIndex = ModConfig.possibleLanguages.indexOf(ModConfig.currentLanguage);
+            if (languageIndex != -1) {
+                language = ModConfig.ISOLanguages.get(languageIndex);
+            } else {
+                LOGGER.error("Invalid language in config: " + ModConfig.currentLanguage);
+            }
+        }
+        langTool = new MultiThreadedJLanguageTool(Languages.getLanguageForShortCode(language));
+
+        LOGGER.info("Lexikon mod has been initialized with language: " + language);
     }
 
     public static void initLexikon() {

@@ -1,6 +1,7 @@
 package com.oiha.lexikon.mixin;
 
 import com.oiha.lexikon.Lexikon;
+import com.oiha.lexikon.client.ModConfig;
 import com.oiha.lexikon.client.SpellChecker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -53,7 +54,7 @@ public class ChatScreenMixin {
     @Unique
     private String lastRuleWord = "";
     @Unique
-    private static final ResourceLocation SPELLCHECK_ICON = ResourceLocation("lexikon", "textures/gui/" + ModConfig.iconStyle + ".png");
+    private static final ResourceLocation SPELLCHECK_ICON = new ResourceLocation("lexikon", "textures/gui/" + ModConfig.iconStyle + ".png");
     @Unique
     private static final int ICON_SIZE = 13;
 
@@ -378,7 +379,7 @@ public class ChatScreenMixin {
 
     @Unique
     private void drawFlagIcon(GuiGraphics guiGraphics, int x, int y, int width, int height, String flag) {
-        ResourceLocation flagIdentifier = ResourceLocation("lexikon", "textures/flag/" + ModConfig.ISOLanguages.get(ModConfig.possibleLanguages.indexOf(flag)).toLowerCase() + ".png");
+        ResourceLocation flagIdentifier = new ResourceLocation("lexikon", "textures/flag/" + ModConfig.ISOLanguages.get(ModConfig.possibleLanguages.indexOf(flag)).toLowerCase() + ".png");
 
         guiGraphics.blit(flagIdentifier, x, y, 0, 0, width, height, width, height);
     }
