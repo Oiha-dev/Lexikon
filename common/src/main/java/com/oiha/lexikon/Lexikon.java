@@ -95,7 +95,18 @@ public final class Lexikon {
         }
 
         LOGGER.info("Lexikon mod has been loaded on the server side");
-        langTool = new MultiThreadedJLanguageTool(Languages.getLanguageForShortCode("en-GB"));
+
+        String language = "en-US";
+        if (ModConfig.currentLanguage != null) {
+            int languageIndex = ModConfig.possibleLanguages.indexOf(ModConfig.currentLanguage);
+            if (languageIndex != -1) {
+                language = ModConfig.ISOLanguages.get(languageIndex);
+            } else {
+                LOGGER.error("Invalid language in config: " + ModConfig.currentLanguage);
+            }
+        }
+        langTool = new MultiThreadedJLanguageTool(Languages.getLanguageForShortCode(language));
+        LOGGER.info("Language tool initialized with language: " + language);
     }
 
     public static Boolean createFileIfNotExists(String path) {
@@ -158,3 +169,4 @@ public final class Lexikon {
         langTool = new MultiThreadedJLanguageTool(Languages.getLanguageForShortCode(language));
     }
 }
+

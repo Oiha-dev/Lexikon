@@ -3,12 +3,14 @@
   "id": "lexikon",
   "version": "${version}",
   "name": "Lexikon",
-  "description": "",
+  "description": "This mod acts as an in-game spell checker, highlighting errors and suggesting corrections as you type in Minecraft chat",
   "authors": [
-    ""
+    "Oiha"
   ],
-  "contact": {
-    "homepage": ""
+  "contact" : {
+    "homepage" : "https://oiha.fr",
+    "sources" : "https://github.com/CaffeineMC/sodium-fabric",
+    "issues" : "https://github.com/Oiha-dev/Lexikon/issues"
   },
   "license": "All-Rights-Reserved",
   "icon": "assets/lexikon/icon.png",
@@ -19,7 +21,8 @@
     ],
     "client": [
       "com.oiha.lexikon.fabric.client.LexikonFabricClient"
-    ]
+    ],
+    "modmenu": [ "com.oiha.lexikon.fabric.client.ModMenuIntegration" ]
   },
   "mixins": [
     "lexikon.mixins.json"
@@ -30,7 +33,12 @@
     "java": ">=17",
     "fabric-api": "*"
   },
-  "suggests": {
-    "another-mod": "*"
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https:discord.gg/3D9TwmdPgh",
+        "modmenu.kofi": "https://ko-fi.com/oiha_dev"
+      }
+    }
   }
 }
