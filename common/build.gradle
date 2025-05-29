@@ -8,4 +8,16 @@ dependencies {
     // Do NOT use other classes from Fabric Loader.
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
 
+    implementation 'org.languagetool:language-en:6.6'
+    implementation 'org.languagetool:language-de:6.6'
+    implementation 'org.languagetool:language-it:6.6'
+    implementation 'org.languagetool:language-es:6.6'
+    implementation 'org.languagetool:language-ca:6.6'
+    implementation 'org.languagetool:language-nl:6.6'
+    implementation 'org.languagetool:language-el:6.6'
+    implementation 'org.languagetool:language-ga:6.6'
+    implementation 'org.languagetool:language-ro:6.6'
+    implementation 'org.languagetool:language-sk:6.6'
+    implementation 'org.languagetool:language-pt:6.6'
+    implementation 'org.languagetool:language-fr:6.6'
 }
