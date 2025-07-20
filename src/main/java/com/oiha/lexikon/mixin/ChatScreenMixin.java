@@ -1,6 +1,6 @@
 package com.oiha.lexikon.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.oiha.lexikon.Lexikon;
 import com.oiha.lexikon.client.ModConfig;
 import com.oiha.lexikon.client.SpellChecker;
@@ -8,7 +8,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.text.Text;
@@ -61,7 +60,9 @@ public class ChatScreenMixin {
     @Unique
     private static final int ICON_SIZE = 13;
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/TextFieldWidget;render(Lnet/minecraft/client/gui/DrawContext;IIF)V", shift = At.Shift.AFTER))
+    @Inject(method = "render", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/screen/Screen;render(Lnet/minecraft/client/gui/DrawContext;IIF)V",
+            shift = At.Shift.AFTER))
     private void renderSuggestions(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         clearSuggestions();
 
@@ -73,10 +74,11 @@ public class ChatScreenMixin {
 
 
         //This is Claude's code, thank you Claude :)
-        context.getMatrices().push();
-        context.getMatrices().translate(0.0F, 0.0F, 200.0F);
-        onRender(context);
-        context.getMatrices().pop();
+        context.getMatrices().pushMatrix();
+        org.joml.Matrix3x2f zTranslation = new org.joml.Matrix3x2f(200F, 0F, 0F, 0F, 0F, 0F);
+        context.getMatrices().translate(0.0F, 0.0F, zTranslation);
+        render(context);
+        context.getMatrices().popMatrix();
     }
 
 
@@ -142,7 +144,7 @@ public class ChatScreenMixin {
                 mouseY >= (boxY - boxHeight) && mouseY <= boxY) || (int)suggestion[5] <= chatField.getCursor() && (int)suggestion[6] >= chatField.getCursor();
     }
 
-    private void onRender(DrawContext context) {
+    private void render(DrawContext context) {
         /*
          * This method is called every frame and is used to render the red underlines and the suggestions
          * It also removes the red underlines after some time
@@ -385,6 +387,6 @@ public class ChatScreenMixin {
     private void drawFlagIcon(DrawContext context, int x, int y, int width, int height, String flag) {
         Identifier flagIdentifier = Identifier.of("lexikon:textures/flag/" + ISOLanguages.get(possibleLanguages.indexOf(flag)).toLowerCase() + ".png");
 
-        context.drawTexture(RenderLayer::getGuiTextured, flagIdentifier, x, y, 0, 0, width, height, width, height);
+        context.drawTexture(RenderPipeline.builder().build(), flagIdentifier, x, y, 0, 0, width, height, width, height);
     }
 }

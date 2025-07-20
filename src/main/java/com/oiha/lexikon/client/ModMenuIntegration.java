@@ -5,20 +5,17 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
-import dev.isxander.yacl3.gui.controllers.cycling.CyclingListController;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import oshi.software.os.linux.LinuxOSFileStore;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.oiha.lexikon.client.ModConfig.reloadDictionary;
@@ -36,27 +33,27 @@ public class ModMenuIntegration implements ModMenuApi {
                         .option(LabelOption.create(Text.literal("Hi, I'm Oiha, the developer of Lexikon.\n\nI hope you enjoy using Lexikon. If you need any help on how to use Lexikon, I have a video on youtube that explain in detail how to use it. \n\nIf you have any suggestions or feedback, please let me know. You can contact me on the community discord server or on my Github page. \n\nI want to really thank you for using Lexikon, this is a project that I have been working on for a long time and I'm really happy to see that people are using it. I'm not that good at moding but I'm trying my best to make mods that are useful and fun to use. \n\nSo if Lexikon helps you I would appreciate that you leave me a tip on my Ko-fi page. Also if you need a Minecraft server you can try BisectHosting with my link, that also helps me ;) \n\nThank you for using Lexikon!\n\n- Oiha\n\n")
                                 .append(Text.literal("[YouTube]")
                                         .setStyle(Style.EMPTY
-                                                .withClickEvent(() -> openLink("https://www.youtube.com/@OihaDev"))
+                                                .withClickEvent(openLink("https://www.youtube.com/@OihaDev"))
                                                 .withColor(Formatting.RED).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))
                                 .append(Text.literal(" "))
                                 .append(Text.literal("[Discord]")
                                         .setStyle(Style.EMPTY
-                                                .withClickEvent(() -> openLink("https:discord.gg/3D9TwmdPgh"))
+                                                .withClickEvent(openLink("https://discord.gg/3D9TwmdPgh"))
                                                 .withColor(0x5662f6).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))
                                 .append(Text.literal(" "))
                                 .append(Text.literal("[Github]")
                                         .setStyle(Style.EMPTY
-                                                .withClickEvent(() -> openLink("https:github.com/Oiha-dev/Lexikon"))
+                                                .withClickEvent(openLink("https://github.com/Oiha-dev/Lexikon"))
                                                 .withColor(Formatting.WHITE).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))
                                 .append(Text.literal(" "))
                                 .append(Text.literal("[Ko-fi]")
                                         .setStyle(Style.EMPTY
-                                                .withClickEvent(() -> openLink("https:ko-fi.com/oiha_dev"))
+                                                .withClickEvent(openLink("https://ko-fi.com/oiha_dev"))
                                                 .withColor(Formatting.LIGHT_PURPLE).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))
                                 .append(Text.literal(" "))
                                 .append(Text.literal("[BisectHosting]")
                                         .setStyle(Style.EMPTY
-                                                .withClickEvent(() -> openLink("https:bisecthosting.com/oiha"))
+                                                .withClickEvent(openLink("https://bisecthosting.com/oiha"))
                                                 .withColor(Formatting.AQUA).withBold(Boolean.TRUE).withUnderline(Boolean.TRUE)))))
                         .build())
                 .category(ConfigCategory.createBuilder()
@@ -64,7 +61,7 @@ public class ModMenuIntegration implements ModMenuApi {
                         .group(OptionGroup.createBuilder()
                                 .collapsed(true)
                                 .name(Text.of("Suggestion Appearance"))
-                                .option(Option.createBuilder(Color.class)
+                                .option(Option.<Color>createBuilder()
                                         .name(Text.of("Background color"))
                                         .binding(new Color(-536870912, true), () -> ModConfig.suggestionBackgroundColor, newValue -> ModConfig.suggestionBackgroundColor = newValue)
                                         .controller(opt -> ColorControllerBuilder.create(opt)
@@ -73,7 +70,7 @@ public class ModMenuIntegration implements ModMenuApi {
                                                 .text(Text.of("This color is used as the background of the suggestions."))
                                                 .build())
                                         .build())
-                                .option(Option.createBuilder(Color.class)
+                                .option(Option.<Color>createBuilder()
                                         .name(Text.of("Suggestions color"))
                                         .binding(Color.WHITE, () -> ModConfig.suggestionColor, newValue -> ModConfig.suggestionColor = newValue)
                                         .controller(ColorControllerBuilder::create)
@@ -81,7 +78,7 @@ public class ModMenuIntegration implements ModMenuApi {
                                                 .text(Text.of("This color is used for the suggestions that are not selected."))
                                                 .build())
                                         .build())
-                                .option(Option.createBuilder(Color.class)
+                                .option(Option.<Color>createBuilder()
                                         .name(Text.of("Suggestions color when selected"))
                                         .binding(Color.YELLOW, () -> ModConfig.chosenSuggestionColor, newValue -> ModConfig.chosenSuggestionColor = newValue)
                                         .controller(ColorControllerBuilder::create)
@@ -93,7 +90,7 @@ public class ModMenuIntegration implements ModMenuApi {
                         .group(OptionGroup.createBuilder()
                                 .collapsed(true)
                                 .name(Text.of("Icon Customization"))
-                                .option(Option.createBuilder(Color.class)
+                                .option(Option.<Color>createBuilder()
                                         .name(Text.of("Icon color"))
                                         .binding(Color.WHITE, () -> ModConfig.dictionaryIconColor, newValue -> ModConfig.dictionaryIconColor = newValue)
                                         .controller(ColorControllerBuilder::create)
@@ -101,7 +98,7 @@ public class ModMenuIntegration implements ModMenuApi {
                                                 .text(Text.of("This color is used for the dictionary icon."))
                                                 .build())
                                         .build())
-                                .option(Option.createBuilder(String.class)
+                                .option(Option.<String>createBuilder()
                                         .name(Text.of("Icon style"))
                                         .binding("book", () -> ModConfig.iconStyle, newValue -> ModConfig.iconStyle = newValue)
                                         .controller(opt -> CyclingListControllerBuilder.create(opt)
@@ -115,12 +112,12 @@ public class ModMenuIntegration implements ModMenuApi {
                         .group(OptionGroup.createBuilder()
                                 .collapsed(true)
                                 .name(Text.of("Outline Customization"))
-                                .option(Option.createBuilder(boolean.class)
+                                .option(Option.<Boolean>createBuilder()
                                         .name(Text.of("Toggle the outline"))
                                         .binding(true, () -> ModConfig.outlineEnabled, newValue -> ModConfig.outlineEnabled = newValue)
                                         .controller(BooleanControllerBuilder::create)
                                         .build())
-                                .option(Option.createBuilder(Color.class)
+                                .option(Option.<Color>createBuilder()
                                         .name(Text.of("Outline color"))
                                         .binding(Color.WHITE, () -> ModConfig.outlineColor, newValue -> ModConfig.outlineColor = newValue)
                                         .controller(ColorControllerBuilder::create)
@@ -132,7 +129,7 @@ public class ModMenuIntegration implements ModMenuApi {
                         .group(OptionGroup.createBuilder()
                                 .collapsed(true)
                                 .name(Text.of("Underline Appearance"))
-                                .option(Option.createBuilder(String.class)
+                                .option(Option.<String>createBuilder()
                                         .name(Text.of("Underline style"))
                                         .binding("Straight", () -> ModConfig.underlineStyle, newValue -> ModConfig.underlineStyle = newValue)
                                         .controller(opt -> CyclingListControllerBuilder.create(opt)
@@ -142,7 +139,7 @@ public class ModMenuIntegration implements ModMenuApi {
                                                 .text(Text.of("This is the style of the underline."))
                                                 .build())
                                         .build())
-                                .option(Option.createBuilder(Color.class)
+                                .option(Option.<Color>createBuilder()
                                         .name(Text.of("Underline color"))
                                         .binding(Color.RED, () -> ModConfig.underlineColor, newValue -> ModConfig.underlineColor = newValue)
                                         .controller(ColorControllerBuilder::create)
@@ -150,7 +147,7 @@ public class ModMenuIntegration implements ModMenuApi {
                                                 .text(Text.of("This color is used for the underline of the suggestions."))
                                                 .build())
                                         .build())
-                                .option(Option.createBuilder(Color.class)
+                                .option(Option.<Color>createBuilder()
                                         .name(Text.of("Underline Minecraft color"))
                                         .description(OptionDescription.of(Text.of("This color is used when the word is part of Minecraft and has suggestions, which prevents confusion when a Minecraft name is also a real word that is misspelled")))
                                         .binding(new Color(0xFFAA00), () -> ModConfig.underineMinecraftColor, newValue -> ModConfig.underineMinecraftColor = newValue)
@@ -163,7 +160,7 @@ public class ModMenuIntegration implements ModMenuApi {
                         .group(OptionGroup.createBuilder()
                                 .collapsed(true)
                                 .name(Text.of("Spellchecker Functionality"))
-                                .option(Option.createBuilder(String.class)
+                                .option(Option.<String>createBuilder()
                                         .name(Text.of("Language"))
                                         .binding("English (GB)", () -> ModConfig.currentLanguage, newValue -> ModConfig.currentLanguage = newValue)
                                         .controller(opt -> CyclingListControllerBuilder.create(opt)
@@ -173,7 +170,7 @@ public class ModMenuIntegration implements ModMenuApi {
                                                 .text(Text.of("This is the language that the spellchecker will use."))
                                                 .build())
                                         .build())
-                                .option(Option.createBuilder(boolean.class)
+                                .option(Option.<Boolean>createBuilder()
                                         .name(Text.of("Toggle the spellchecker"))
                                         .description(OptionDescription.of(Text.of("This will enable or disable the entire spellchecker.")))
                                         .binding(true, () -> spellcheckerEnabled, newValue -> spellcheckerEnabled = newValue)
@@ -182,7 +179,7 @@ public class ModMenuIntegration implements ModMenuApi {
                                                 .text(Text.of("This will enable or disable the spellchecker in the chat."))
                                                 .build())
                                         .build())
-                                .option(Option.createBuilder(boolean.class)
+                                .option(Option.<Boolean>createBuilder()
                                         .name(Text.of("Check spelling in commands"))
                                         .description(OptionDescription.of(Text.of("This will enable or disable the spellchecker in commands, useful for servers owners that want to check the spelling of the text in there commands")))
                                         .binding(false, () -> ModConfig.spellcheckerInCommands, newValue -> ModConfig.spellcheckerInCommands = newValue)
@@ -195,13 +192,13 @@ public class ModMenuIntegration implements ModMenuApi {
                         .group(OptionGroup.createBuilder()
                                 .collapsed(true)
                                 .name(Text.of("User Interface"))
-                                .option(Option.createBuilder(boolean.class)
+                                .option(Option.<Boolean>createBuilder()
                                         .name(Text.of("Toggle the flag"))
                                         .description(OptionDescription.of(Text.of("This will enable or disable the icon of flag that tell the current language of the spellchecker")))
                                         .binding(false, () -> ModConfig.flagButtonEnabled, newValue -> ModConfig.flagButtonEnabled = newValue)
                                         .controller(BooleanControllerBuilder::create)
                                         .build())
-                                .option(Option.createBuilder(boolean.class)
+                                .option(Option.<Boolean>createBuilder()
                                         .description(OptionDescription.of(Text.of("This will enable or disable the dictionary, and the dictionary icon")))
                                         .name(Text.of("Toggle the dictionary"))
                                         .binding(true, () -> ModConfig.dictionaryEnabled, newValue -> ModConfig.dictionaryEnabled = newValue)
@@ -256,12 +253,11 @@ public class ModMenuIntegration implements ModMenuApi {
         }
     }
 
-    private ClickEvent.Action openLink(String link) {
+    private ClickEvent openLink(String link) {
         try {
-            new ClickEvent.OpenUrl(new URI(link));
+            return new ClickEvent.OpenUrl(new URI(link));
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-        return null;
     }
 }
