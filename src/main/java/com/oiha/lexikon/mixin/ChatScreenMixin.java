@@ -5,6 +5,7 @@ import com.oiha.lexikon.Lexikon;
 import com.oiha.lexikon.client.ModConfig;
 import com.oiha.lexikon.client.SpellChecker;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -387,6 +388,6 @@ public class ChatScreenMixin {
     private void drawFlagIcon(DrawContext context, int x, int y, int width, int height, String flag) {
         Identifier flagIdentifier = Identifier.of("lexikon:textures/flag/" + ISOLanguages.get(possibleLanguages.indexOf(flag)).toLowerCase() + ".png");
 
-        context.drawTexture(RenderPipeline.builder().build(), flagIdentifier, x, y, 0, 0, width, height, width, height);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, flagIdentifier, x, y, 0, 0, width, height, width, height);
     }
 }
