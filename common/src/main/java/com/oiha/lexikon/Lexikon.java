@@ -53,11 +53,7 @@ public final class Lexikon {
                 List<String> splitNames = List.of(block.getName().getString().split(" "));
                 minecraftNames.addAll(splitNames);
             }
-            for (Enchantment enchantment : BuiltInRegistries.ENCHANTMENT) {
-                String strEnchantment = enchantment.getFullname(0).getString();
-                List<String> splitNames = List.of(strEnchantment.substring(0, strEnchantment.length() - 20).split(" "));
-                minecraftNames.addAll(splitNames);
-            }
+
             for (EntityType<?> entityType : BuiltInRegistries.ENTITY_TYPE) {
                 List<String> splitNames = List.of(entityType.getDescription().getString().split(" "));
                 minecraftNames.addAll(splitNames);

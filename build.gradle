@@ -55,12 +55,12 @@ subprojects {
         // If you remove this line, sources will not be generated.
         withSourcesJar()
 
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     tasks.withType(JavaCompile).configureEach {
-        it.options.release = 17
+        it.options.release = 21
     }
 
     // Configure Maven publishing.
@@ -78,54 +78,6 @@ subprojects {
             // Notice: This block does NOT have the same function as the block in the top level.
             // The repositories here will be used for publishing your artifact, not for
             // retrieving dependencies.
-        }
-    }
-}
-
-task printLanguageToolDependencies {
-    doLast {
-        // Create a configuration specifically for analyzing LanguageTool dependencies
-        def langToolConfig = project.configurations.create("languageToolDependencies")
-
-        // Add all your LanguageTool dependencies
-        dependencies {
-            languageToolDependencies("org.languagetool:language-en:6.6")
-            languageToolDependencies("org.languagetool:language-de:6.6")
-            languageToolDependencies("org.languagetool:language-it:6.6")
-            languageToolDependencies("org.languagetool:language-es:6.6")
-            languageToolDependencies("org.languagetool:language-ca:6.6")
-            languageToolDependencies("org.languagetool:language-nl:6.6")
-            languageToolDependencies("org.languagetool:language-el:6.6")
-            languageToolDependencies("org.languagetool:language-ga:6.6")
-            languageToolDependencies("org.languagetool:language-ro:6.6")
-            languageToolDependencies("org.languagetool:language-sk:6.6")
-            languageToolDependencies("org.languagetool:language-pt:6.6")
-            languageToolDependencies("org.languagetool:language-fr:6.6")
-        }
-
-        // Print all dependencies including transitive ones
-        println "=== LanguageTool Dependencies ==="
-        langToolConfig.resolvedConfiguration.lenientConfiguration.allModuleDependencies.each { dep ->
-            println "${dep.module.id}:"
-            dep.children.each { child ->
-                println "  - ${child.module.id}"
-            }
-        }
-
-        // Find potential module conflicts
-        println "\n=== Potential Module Conflicts ==="
-        def modules = [:]
-        langToolConfig.resolvedConfiguration.resolvedArtifacts.each { artifact ->
-            def id = artifact.moduleVersion.id
-            def key = "${id.group}:${id.name}"
-            if (!modules.containsKey(key)) {
-                modules[key] = []
-            }
-            modules[key] << id.version
-        }
-
-        modules.findAll { k, v -> v.size() > 1 }.each { k, v ->
-            println "${k} has multiple versions: ${v.join(', ')}"
         }
     }
 }
